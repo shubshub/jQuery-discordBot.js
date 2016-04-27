@@ -7,6 +7,7 @@ var aiMove;
 var brain = [];
 var count = 0;
 var turnwin = "Nobody";
+var moveStrings = ["High Attack", "Mid Attack", "Low Attack"]; // For easy conversion into string
 /*
 0: High Attack Points
 1: Mid Attack Points
@@ -40,27 +41,23 @@ function ninjaAddAIMove(move)
 
 function addPlayerWin(move)
 {
-	ninjaScorePlayer[move]+=1;
+	ninjaScorePlayer[move - 1] += 1;
+	return "the player";
 }
 
 function addAIwin(move)
 {
-	ninjaScoreAI[move]+=1;
+	ninjaScoreAI[move - 1] += 1;
+	return "Mregal Bot";
 }
 
+// This does the same things as your previous code did, but I'm not sure what plans you had for it so idk
 function pushToBrain(move)
 {
-	//Eventually old Moves will be pushed out of the Brain
-	var tempHold = []
-	for (var i = 0; i < brain.length; i++)
-	{
-		tempHold[i+1] = brain[i];
-	}
-	tempHold[0] = move
-	for (var j = 0; j < brain.length; j++)
-	{
-		brain[j] = tempHold[j];
-	}
+	// Shifts all elements to the right and makes brain[0] = move
+	brain.unshift(move);
+	// Removes the last element of the array, in this case brain[15], so that the array is kept at a length of 15
+	brain.pop();
 }
 
 function rulesNinja()
@@ -112,162 +109,82 @@ function aiChoice()
 	
 	//This is the Brain of Mregal Bot, Whatever is left it will randomly select a move from the pool
 	brain = [1,1,1,1,1,2,2,2,2,2,3,3,3,3,3];
-	if (hAttackP >=1)
-	{
-		for (var i = 0; i < (5*hAttackP); i++)
-		{
-			pushToBrain(2);
-		}
-	}
-	if (mAttackP >=1)
-	{
-		for (var i = 0; i < (5*mAttackP); i++)
-		{
-			pushToBrain(3);
-		}
-	}
-	if (lAttackP >=1)
-	{
-		for (var i = 0; i < (5*lAttackP); i++)
-		{
-			pushToBrain(1);
-		}
-	}
-	if ((hAttackP ==1) && (mAttackP ==1))
-	{
-		for (var i = 0; i < 7; i++)
-		{
-			pushToBrain(1);
-		}
-	}
-	if ((hAttackP == 1) && (lAttackP == 1))
-	{
-		for (var i = 0; i < 7; i++)
-		{
-			pushToBrain(3);
-		}
-	}
-	if ((lAttackP == 1) && (mAttackP == 1))
-	{
-		for (var i = 0; i < 7; i++)
-		{
-			pushToBrain(2);
-		}
-	}
+
+	// Refactored these into functions since they did the exact same thing with just 2 or 3 different values
+	think(hAttackP, 2);
+	think(mAttackP, 3);
+	think(lAttackP, 1);
+
+	thinkMore(hAttackP, mAttackP, 1);
+	thinkMore(hAttackP, lAttackP, 3);
+	thinkMore(lAttackP, mAttackP, 2);
+
 	aiMove = brain[Math.floor(Math.random() * ((brain.length-1) - 0 + 1)) + 0];
 	ninjaAddAIMove(aiMove);
 	ninjaAttack();
 }
 
-function ninjaAttack()
+// Couldn't think of a better name
+function think(attP, move)
 {
-	//Calculate the Wins!
-	turnwin = "Nobody";
-	if ((playChoice == 1) && (aiMove == 1))
+	if(attP >= 1)
 	{
-		//Tie - Nobody Wins
+		for(var i = 0; i < (5 * attP); i++)
+		{
+			pushToBrain(move);
+		}
 	}
-	if ((playChoice == 2) && (aiMove == 1))
+}
+
+// Same here
+function thinkMore(attP1, attP2, move)
+{
+	if(attP1 == 1 && attP2 == 1)
 	{
-		//Player Wins
-		turnwin = "the player";
-		addPlayerWin(1);
+		for(var i = 0; i < 7; i++)
+		{
+			pushToBrain(move);
+		}
 	}
-	if ((playChoice == 3) && (aiMove == 1))
-	{
-		//Mregal Bot Wins
-		turnwin = "Mregal Bot";
-		addAIwin(0);
-	}
-	
-	if ((playChoice == 1) && (aiMove == 2))
-	{
-		//Mregal Bot Wins
-		turnwin = "Mregal Bot";
-		addAIwin(1);
-	}
-	if ((playChoice == 2) && (aiMove == 2))
-	{
-		//Tie - Nobody Wins
-	}
-	if ((playChoice == 3) && (aiMove == 2))
-	{
-		//Player Wins
-		turnwin = "the player";
-		addPlayerWin(2);
-	}
-	
-	if ((playChoice == 1) && (aiMove == 3))
-	{
-		//Player Wins
-		turnwin = "the player";
-		addPlayerWin(0);
-	}
-	if ((playChoice == 2) && (aiMove == 3))
-	{
-		//Mregal Bot Wins
-		turnwin = "Mregal Bot";
-		addAIwin(2);
-	}
-	if ((playChoice == 3) && (aiMove == 3))
-	{
-		//Tie - Nobody Wins
-	}
+}
+
+function ninjaAttack()
+{	
+	var a = playChoice;
+	var b = aiMove;
+	turnwin = a == b ? "Nobody" : ((a == 1 && b == 3) || (a == 2 && b == 1) || (a == 3 && b == 2)) ? addPlayerWin(a) : addAIwin(b);
 	testNinjaWin();
 }
 
 function testNinjaWin()
 {
-	var playerString;
-	var aiString;
-	if (playChoice == 1)
-	{
-		playerString = "High Attack";
-	}
-	if (playChoice == 2)
-	{
-		playerString = "Middle Attack";
-	}
-	if (playChoice == 3)
-	{
-		playerString = "Lower Attack";
-	}
-	
-	if (aiMove == 1)
-	{
-		aiString = "High Attack";
-	}
-	if (aiMove == 2)
-	{
-		aiString = "Middle Attack";
-	}
-	if (aiMove == 3)
-	{
-		aiString = "Lower Attack";
-	}
+	var playerString = moveStrings[playChoice - 1];
+	var aiString = moveStrings[aiMove - 1];
 	
 	sendMessage("<@" + chat[0].author.id + "> Attacks with a "+playerString+" while Mregal Bot tries to block with a "+aiString+" and the outcome is that "+turnwin+" is the winner!");
 	
-	for (var i = 0; i < ninjaScorePlayer.length; i++)
+	for(var score of ninjaScorePlayer)
 	{
-		if (ninjaScorePlayer[i] >=3)
+		if(score >= 3)
 		{
 			playerWin();
 		}
 	}
-	if ((ninjaScorePlayer[0] >= 1) && (ninjaScorePlayer[1] >=1) && (ninjaScorePlayer[2] >=1))
+
+	if(ninjaScorePlayer.filter((score) => {return score >= 1}) == ninjaScorePlayer.length)
 	{
 		playerWin();
 	}
 	
-	for (var i = 0; i < ninjaScoreAI.length; i++)
+	for(var score of ninjaScoreAI)
 	{
-		if (ninjaScoreAI[i] >=3)
+		if(score >= 3)
 		{
 			aiWin();
 		}
 	}
-	if ((ninjaScoreAI[0] >= 1) && (ninjaScoreAI[1] >=1) && (ninjaScoreAI[2] >=1))
+
+	if (ninjaScoreAI.filter((score) => {return score >= 1}) == ninjaScoreAI.length)
 	{
 		aiWin();
 	}
