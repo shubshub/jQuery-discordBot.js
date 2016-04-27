@@ -1,0 +1,31 @@
+The rules of Battle Dice are Simple
+Both players roll up to 6 10 Sided Die
+However a number of different battle styles may be used which may give an advantage
+They will be balanced so that none are overpowered
+
+
+Pick a Battle Style for the Dice Roll
+
+Battle Style 1: One of the Rolled Die is Guarenteed to be a 10
+Battle Style 2: 3 of the Die Rolled will be Rolled with the Same Value
+Battle Style 3: Roll 1 60 Sided Die
+Battle Style 4: Both Players Exchange their Strongest Rolled Number
+Battle Style 5: The dice rolled can not be lower than 5 in value
+(If the Opponent uses Battle Style 3 then Players Exchange all their Die with each other)
+
+/*
+Potential Good Combo
+Style 4 against Style 1, Player with Style 4 is guarenteed atleast 1 10, While Style 1 may not be left with a 10
+
+Style 2 against Style 4, Player with Style 4 may be left with a relatively low number
+
+Style 3 against Style 1, A Guarenteed 10 might not work well against a Roll out of 60
+
+Style 1 Against Style 2, If Style 2 rolls low for one of the dice then they may have 3 Really low numbers against a Gaurenteed 10
+
+Style 4 against Style 3, Style 3 Might be left with low Dice Rolls compared to what they could of had
+
+Style 5 against Style 2, The 3 rolled dice can be any value between 1 and 10 While Style 5 can't roll lower than a 5
+
+Style 5 against Style 5, Evenly Matched
+*/

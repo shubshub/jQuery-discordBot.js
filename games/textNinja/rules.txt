@@ -1,0 +1,20 @@
+The rules of Text Ninja is Simple
+
+Each player Selects a Ninjitsu Attack Style
+
+- High Attack
+- Mid Attack
+- Low Attack
+
+Similar to Rock Paper Scissors
+Except that to win you must meet one of these conditions
+
+Get 3 Wins 1 for each type of attack
+Get 3 Wins in 1 Attack Type
+
+High Attack Jumps over a Low Attack and Dodges it Beating Low Attack
+Mid Attack intercepts the High Attack foiling the High Attack and beating it
+Low Attack Trips the Mid Attack and Beats it
+
+Be sharp though as the AI will Adapt based on the data it has access to
+Either player may look at the Scoreboard of the game at any point

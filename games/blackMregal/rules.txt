@@ -1,0 +1,18 @@
+The rules of Black Mregal are Simple.
+
+Get as close to the value of 42 as possible without going over
+The Dealer (Mregal Bot) Will deal cards to you and itself when you tell it to
+
+A Deck of 104 Cards with some of the Cards have been randomly given special effects that when drawn
+The player that drew the card will have that effect applied
+
+Below are the Trap Effects
+1. If you draw a card next turn its value is now double (High Risk, High Reward)
+2. If you draw a card next turn its value halved in value (Low Risk, Low Reward)
+3. If this effect is drawn then the deck is reshuffled
+
+Cards in the Deck
+Values: 1 -> 10 -> 10(J) -> 10(Q) -> 10(K)
+8 of Each Value
+
+At the start of the game 12 Cards will be randomly selected and have the Special Effects applied to them
