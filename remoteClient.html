@@ -4,16 +4,17 @@
 <title>Mregal Bot - Discord</title>
 </head>
 <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
-
-<script src="./workerRunner.js"></script>
+<script src="./discordPureJS.js"></script>
+<script src="./games/battledice/battleDice.js"></script>
+<script src="./games/textNinja/textNinja.js"></script>
+<script src="./games/blackMregal/blackMregal.js"></script>
+<script src="./jQuery.discordBot.js"></script>
 </script>
 <body>
 <form>
   Auth Token: <input id="authToke" type="password" name="auth" style="width: 500px;" value=""><br><br>
-  Server Link: <input id="urlToke" type="text" name="url" style="width: 500px;" value=""><br>
-  <input type="button" onclick="newServer()" value="New Server!">
+  <input type="button" onclick="init()" value="Connect to Discord!">
 </form>
-<p>Connected Servers: </p>
 
 </body>
 </html>

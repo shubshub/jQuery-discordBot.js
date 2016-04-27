@@ -11,7 +11,7 @@ function checkReady()
 {
 	if (chatReady == 0)
 	{
-		if (chat[0].content != lastMessage)
+		if (msg != lastMessage)
 		{
 			chatReady = 1;
 		}
@@ -24,7 +24,7 @@ function sendMessage(msg)
 	$.ajax(
 	{
 		type: "POST",
-		url: lru,
+		url: "https://discordapp.com/api/channels/"+chanId+"/messages",
 		headers: 
 		{ 
 			'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -37,7 +37,7 @@ function sendMessage(msg)
 			xhr.setRequestHeader('X-Requested-With',{toString: function() { return ''; }}
         );
     },
-	data:JSON.stringify({"content":msg,"nonce":"173327918934523904"})
+	data:JSON.stringify({"content":msg})
 });
 }
 

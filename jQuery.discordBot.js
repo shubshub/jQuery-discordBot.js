@@ -1,22 +1,6 @@
 var login = "Bit.ly Username";
 var api_key = "Bit.ly API Key";
-function blah()
-{
-	importScripts("./fakeDOM.js");
-	importScripts("https://code.jquery.com/jquery-2.2.3.min.js");
-	importScripts("./discordPureJS.js");
-	importScripts("./games/battledice/battleDice.js");
-	importScripts("./games/textNinja/textNinja.js");
-	importScripts("./games/blackMregal/blackMregal.js");
-}
-blah();
-
-self.addEventListener("message", function(e) {
-	if (e.data[0] == "init")
-	{
-		eval(e.data[0])(e.data[1],e.data[2]);		
-	}
-}, false);
+authToken = "";
 
 var commands = [];
 var functions = [];
@@ -26,6 +10,46 @@ var compliments = [];
 var users = [];
 var uids = [];
 var changelog = [];
+var quotes = [];
+
+var whitelist = []; //Whitelisted Usernames for Certain Commands
+var commandsWhitelist = []; //These commands require you to be on the Whitelist
+
+var dcServ = document.createElement('input');
+dcServ.setAttribute('id','disconnecter');
+dcServ.setAttribute('onclick','disconnect()');
+dcServ.setAttribute('value','Disconnect!');
+dcServ.setAttribute('type','button');
+
+function disconnect()
+{
+	var b = document.getElementById("disconnecter");
+	socket.close();
+	b.remove();
+}
+
+function remoteClose()
+{
+	sendMessage("Goodbye!");
+	var b = document.getElementById("disconnecter");
+	socket.close();
+	b.remove();
+}
+
+function whitelistCommand(command)
+{
+	commandsWhitelist[commandsWhitelist.length] = command;
+}
+
+function whitelistUser(user)
+{
+	whitelist[whitelist.length] = user;
+}
+
+function addQuote(quote)
+{
+	quotes[quotes.length] = quote;
+}
 
 function addChange(log)
 {
@@ -43,12 +67,11 @@ function botChangelog()
 	sendMessage(test);
 }
 
-function init(u,a)
+function init()
 {
-	console.log("I am a new server! and I am live!");
-	authToken = a;
-	lru = u;
-	var handle = setTimeout(returnChat,100);
+	console.log("I am connected and I am live!");
+	authToken = document.getElementById("authToke").value;
+	heartbeat();
 }
 
 
@@ -130,6 +153,11 @@ function stack(resp)
 	get_short_url("http://stackoverflow.com/search?q="+str, login, api_key);
 }
 
+function engine()
+{
+	sendMessage("https://github.com/shubshub/jQuery-discordBot.js");
+}
+
 function numSeq(txt)
 {
 	var counted = 0;
@@ -157,15 +185,13 @@ function numSeq(txt)
 var chat = [];
 var nextCheck = 0;
 var firstTime = 1;
-function returnChat()
+
+function heartbeat()
 {
-	if (nextCheck == 0)
-	{
-		nextCheck = 1;
-		$.ajax(
+	$.ajax(
 			{
 				type: "GET",
-				url: lru,
+				url: "https://discordapp.com/api/gateway",
 				headers: 
 				{ 
 					'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -176,42 +202,151 @@ function returnChat()
 				success: function(response)
 				{
 					
-					//console.log(response);
-					chat = response
-					handler(chat[0].content);
+					console.log(response);
+					connect(response);
 				}
-			});			
-	}
+			});	
 }
-function chatHandler()
-{
-	handler(chat[0].content);
+var socket;
+var sentOnce = 0;
+var chanId;
+var msg;
+var gameUpdate = {
+"op" : 3,
+"d" : {
+"game" : {
+"name" : "$about for commands"
+},
+"idle_since": null
+}
+};
+
+var ready = 0;
+
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
 }
 
-function handler(txt)
+function connect(resp)
+{
+	 socket = new WebSocket(resp.url,["protocolOne", "protocolTwo"]);
+	 socket.onmessage = function(e){
+			if (IsJsonString(e.data))
+			{
+				var msgStuff = JSON.parse(e.data);
+				chanId = msgStuff.d.channel_id;
+				if (msgStuff.t == "MESSAGE_CREATE")
+				{
+					if (msgStuff.d.author !=undefined)
+					{
+						if (msgStuff.d.author.id != "169712284149481472")
+						{
+							if (msgStuff.d.content !=undefined)
+							{
+								msg = msgStuff.d.content;			
+							}				
+						}				
+					}	
+					handler(msg,msgStuff.d.author.id);				
+				}	
+			}
+			 
+
+
+
+
+
+
+		 if (ready == 0)
+		 {
+			 socket.send(JSON.stringify(gameUpdate));
+			 ready = 1;
+		 }
+		socket.send(JSON.stringify({
+		"op": 1,
+		"d":  "1450996513618"
+		}));
+		
+		}
+		socket.onerror = function (error) {
+  console.log('WebSocket Error ' + error);
+};
+
+	 socket.onopen = function(){
+		 var body = document.getElementsByTagName('body').item(0);
+		 body.appendChild(dcServ);
+		 var msg = {
+		"op": 2,
+		"d": {
+		"token": authToken,
+		"v": 3,
+		"properties": {
+		"$os": "Windows",
+		"$browser": "Chrome",
+		"$device": "",
+		"$referrer":" https://discordapp.com/@me",
+		"$referring_domain":"discordapp.com"
+		},
+		"large_threshold":100,
+		"compress":true
+		}
+	 };
+		 socket.send(JSON.stringify(msg));};
+}
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
+
+function handler(txt,userId)
 {
 	if (chatReady == 1)
 	{
 		lastMessage = txt;
-		for (var i = 0; i < commands.length; i++)
+		var testString = txt.replaceAll("$","shibshabshib");
+		var testCommands = commands.join("|").replaceAll("$","shibshabshib");
+		var test = new RegExp(testCommands).exec(testString);
+		if (test !=null)
 		{
-			if ((txt.indexOf(commands[i]) !=-1) && (chat[0].author.id != "169712284149481472"))
+			var nonMregals = test[0].replaceAll("shibshabshib","$");
+			if (nonMregals != null)			
 			{
-				functions[i](txt);
+				
+				var index = commands.indexOf(nonMregals);
+				if (commandsWhitelist.indexOf(commands[index]) !=-1)
+				{
+					if (whitelist.indexOf(userId) !=-1)
+					{
+						functions[index](txt);
+					}
+					else
+					{
+						sendMessage("You don't have the permission for that command");
+					}
+				}
+				else
+				{
+					functions[index](txt);				
+				}
 				chatReady = 0;
-			}				
+			}	
 		}
 		
 	}
-	nextCheck = 0;
-	returnChat();
-	//domNewMessage[0].innerHTML= chat[0].content;
-	
+	nextCheck = 0;	
 }
 
 addChange("Since last version");
-addChange("- Added Multi Server Support (Multithreading)");
-addChange("- More Stability");
+addChange("- Added Multi Server Support (Websockets)");
+addChange("- Less spammy to the API!");
+addChange("- Whitelists! and Quotes!");
+
 //Place the command adding below here 
 addCommand("$stackoverflow",stack);
 addCommand("$insult",insult);
@@ -221,6 +356,9 @@ addCommand("$seqGame",numSeq);
 addCommand("$about",help);
 addCommand("$info",creation);
 addCommand("$whatDoYouNeed",sayIdea);
+addCommand("$engine",engine);
+
+
 
 addCommand("$bd rules",rulesDice);
 addCommand("$bd play",playDice);
@@ -235,14 +373,24 @@ addCommand("$bjk rules",rulesBMregal);
 addCommand("$bjk hit",bjkHit);
 addCommand("$mregalChanges",botChangelog);
 
+addCommand("$quote",sayQuote);
+
+addCommand("$endMregal",remoteClose);
+
 
 addInsult("I hope you step on a piece of lego");
 addInsult("I hope you get stepped on by a piece of lego.");
 addInsult("You are a flingleflangleruddyduddy mangled old baconstomper");
 addInsult("you'll never be the man your mother is.");
 addInsult("Your family tree is a cactus, because everybody on it is a prick.");
+addInsult("Being around you makes everything better!...... Sorry wrong person");
+addInsult("Jokes are funnier when you tell them. wait sorry I meant to say the Jokes are funnier when they are about you because you suck");
 
 addCompliment("I hope a million pounds of of bacon get accidentally delivered to your address");
+addCompliment("Is that your picture next to 'charming' in the dictionary?");
+addCompliment("On a scale from 1 to 10, you're an 11.");
+addCompliment("Your ability to recall random factoids at just the right time is impressive.");
+addCompliment("When you say, 'I meant to do that,' I totally believe you.");
 
 addIdea("I WANT MORE MEMORY");
 addIdea("GIVE ME MORE AI POWER");
@@ -252,7 +400,17 @@ addIdea("How about more games?");
 addIdea("Maybe more entertainment functions");
 addIdea("More humanlike stuff");
 
+addQuote("```Bleachy: Eyy my new pop filter arrived\nNow i can poop on @Dr. Nu even harder``` (28/04/2016 1:04AM [GMT+12])");
 
+whitelistUser("147284801647411200");
+whitelistCommand("$endMregal");
+
+function sayQuote(txt)
+{
+	var q = txt.replace("$quote ","");
+	var g = parseInt(q);
+	sendMessage(quotes[g]);
+}
 
 function sayIdea()
 {
