@@ -171,8 +171,6 @@ function testNinjaWin()
 		}
 	}
 
-	var tempArray = 
-
 	if(ninjaScorePlayer.filter((score) => {return score >= 1}) == ninjaScorePlayer.length)
 	{
 		playerWin();
