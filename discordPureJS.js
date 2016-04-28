@@ -18,13 +18,13 @@ function checkReady()
 	}
 	readyHandle = setTimeout(checkReady,1000);
 }
-function sendMessage(msg)
+function sendMessage(msg,chan)
 {
 	//Sends a message to Discord
 	$.ajax(
 	{
 		type: "POST",
-		url: "https://discordapp.com/api/channels/"+chanId+"/messages",
+		url: "https://discordapp.com/api/channels/"+chan+"/messages",
 		headers: 
 		{ 
 			'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

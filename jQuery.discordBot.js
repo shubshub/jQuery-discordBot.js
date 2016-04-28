@@ -11,6 +11,14 @@ var users = [];
 var uids = [];
 var changelog = [];
 var quotes = [];
+var msgQ = [];
+var chanQ = [];
+var userQ = [];
+
+
+var rateLimitStop = 0;
+
+var globalUser;
 
 var whitelist = []; //Whitelisted Usernames for Certain Commands
 var commandsWhitelist = []; //These commands require you to be on the Whitelist
@@ -21,6 +29,13 @@ dcServ.setAttribute('onclick','disconnect()');
 dcServ.setAttribute('value','Disconnect!');
 dcServ.setAttribute('type','button');
 
+function qMessage(msg,chan,userId)
+{
+	msgQ[msgQ.length] = msg;
+	chanQ[chanQ.length] = chan;
+	userQ[userQ.length] = userId;
+}
+
 function disconnect()
 {
 	var b = document.getElementById("disconnecter");
@@ -28,9 +43,9 @@ function disconnect()
 	b.remove();
 }
 
-function remoteClose()
+function remoteClose(nothing,chan)
 {
-	sendMessage("Goodbye!");
+	sendMessage("Goodbye!",chan);
 	var b = document.getElementById("disconnecter");
 	socket.close();
 	b.remove();
@@ -56,7 +71,7 @@ function addChange(log)
 	changelog[changelog.length] = log;
 }
 
-function botChangelog()
+function botChangelog(nothing,chan)
 {
 	var test = "```";
 	for (var i = 0; i < changelog.length; i++)
@@ -64,7 +79,7 @@ function botChangelog()
 		test+=changelog[i] +"\n";
 	}
 	test+="```";
-	sendMessage(test);
+	sendMessage(test,chan);
 }
 
 function init()
@@ -94,40 +109,40 @@ function addIdea(txt)
 	ideas[ideas.length] = txt;
 }
 
-function creation()
+function creation(nothing,chan)
 {
-	sendMessage("I was created by Shubshub using JS/jQuery with an engine built from the ground up");
+	sendMessage("I was created by Shubshub using JS/jQuery with an engine built from the ground up",chan);
 }
 
 
-function insult(str)
+function insult(str,chan)
 {
 	username = str.replace("$insult ","");
 	var rand = Math.floor(Math.random() * (insults.length - 0 + 0)) + 0;
-	sendMessage(username + " " + insults[rand]);
+	sendMessage(username + " " + insults[rand],chan);
 }
-function compliment(str)
+function compliment(str,chan)
 {
 	username = str.replace("$compliment ","");
 	var rand = Math.floor(Math.random() * (compliments.length - 0 + 0)) + 0;
-	sendMessage(username + " " + compliments[rand]);
+	sendMessage(username + " " + compliments[rand],chan);
 }
 
 
-function help()
+function help(nothing,chan)
 {
-	sendMessage("Here: http://pastebin.com/6R5SJ1bd");
+	sendMessage("Here: http://pastebin.com/6R5SJ1bd",chan);
 }
 
-function upsideDownText(txt) 
+function upsideDownText(txt,chan) 
 {
 	txt = txt.replace("$flip ","");
 	var result = flipString(txt.toLowerCase());
-	sendMessage(result);
+	sendMessage(result,chan);
 }
 
 
-function get_short_url(long_url, login, api_key)
+function get_short_url(long_url, login, api_key,chan)
 {
     jQuery.getJSON(
         "http://api.bitly.com/v3/shorten?callback=?", 
@@ -140,25 +155,25 @@ function get_short_url(long_url, login, api_key)
         function(response)
         {
 			console.log(response.data.url);
-			sendMessage("Here Try this: "+response.data.url);
+			sendMessage("Here Try this: "+response.data.url,chan);
         }
     );
 }
-function stack(resp)
+function stack(resp,chan)
 {
 	var str = resp;
 	str = str.replace("$stackoverflow ","");
 	str = str.replace(/ /g, "%20");
 	str = str.split('+').join('%2b');
-	get_short_url("http://stackoverflow.com/search?q="+str, login, api_key);
+	get_short_url("http://stackoverflow.com/search?q="+str, login, api_key,chan);
 }
 
-function engine()
+function engine(nothing,chan)
 {
-	sendMessage("https://github.com/shubshub/jQuery-discordBot.js");
+	sendMessage("https://github.com/shubshub/jQuery-discordBot.js",chan);
 }
 
-function numSeq(txt)
+function numSeq(txt,chan)
 {
 	var counted = 0;
 	var finString = "";
@@ -179,7 +194,7 @@ function numSeq(txt)
 			counted = 0;
 		}
 	}
-	sendMessage(finString + "\nCan you figure out the next number in the sequence?\nBecause I can ^_^");
+	sendMessage(finString + "\nCan you figure out the next number in the sequence?\nBecause I can ^_^",chan);
 }
 
 var chat = [];
@@ -231,15 +246,17 @@ function IsJsonString(str) {
     }
     return true;
 }
-
+var timer = new Date();
 function connect(resp)
 {
-	 socket = new WebSocket(resp.url,["protocolOne", "protocolTwo"]);
+	 socket = new WebSocket(resp.url);
 	 socket.onmessage = function(e){
+			
 			if (IsJsonString(e.data))
 			{
 				var msgStuff = JSON.parse(e.data);
 				chanId = msgStuff.d.channel_id;
+				//console.log(msgStuff.t + ": "+msgStuff.d.content);
 				if (msgStuff.t == "MESSAGE_CREATE")
 				{
 					if (msgStuff.d.author !=undefined)
@@ -248,14 +265,24 @@ function connect(resp)
 						{
 							if (msgStuff.d.content !=undefined)
 							{
-								msg = msgStuff.d.content;			
+								msg = msgStuff.d.content;
+								qMessage(msg,msgStuff.d.channel_id,msgStuff.d.author.id);
+
+								
 							}				
-						}				
+						}			
+					
 					}	
-					handler(msg,msgStuff.d.author.id);				
+					//if (chatReady == 1)
+					//{
+						//handler(msg,msgStuff.d.author.id);			
+					//}
+					
+					
 				}	
+				
 			}
-			 
+			 processMessages();	
 
 
 
@@ -267,11 +294,17 @@ function connect(resp)
 			 socket.send(JSON.stringify(gameUpdate));
 			 ready = 1;
 		 }
-		socket.send(JSON.stringify({
-		"op": 1,
-		"d":  "1450996513618"
-		}));
+		 if (rateLimitStop == 0)
+		 {
+			 socket.send(JSON.stringify({
+			"op": 1,
+			"d":  toString(timer.getTime())
+			}));
+			rateLimitStop = 1;
+			setTimeout(function(){rateLimitStop = 0;},1000);
+		 }
 		
+		timer = new Date();
 		}
 		socket.onerror = function (error) {
   console.log('WebSocket Error ' + error);
@@ -297,6 +330,13 @@ function connect(resp)
 		}
 	 };
 		 socket.send(JSON.stringify(msg));};
+		 
+		 socket.onclose = function(e)
+		 {
+			 console.log(socket);
+			 console.log(e);
+			 console.log("We have been closed!");
+		 }
 }
 
 String.prototype.replaceAll = function(search, replacement) {
@@ -317,7 +357,7 @@ function handler(txt,userId)
 			var nonMregals = test[0].replaceAll("shibshabshib","$");
 			if (nonMregals != null)			
 			{
-				
+				globalUser = userId;
 				var index = commands.indexOf(nonMregals);
 				if (commandsWhitelist.indexOf(commands[index]) !=-1)
 				{
@@ -342,10 +382,59 @@ function handler(txt,userId)
 	nextCheck = 0;	
 }
 
+function processMessages()
+{
+	var txt = msgQ[0];
+	var chan = chanQ[0];
+	var userId = userQ[0];
+	if ((chatReady == 1) && (txt !=undefined))
+	{
+		lastMessage = txt;
+		var testString = txt.replaceAll("$","shibshabshib");
+		var testCommands = commands.join("|").replaceAll("$","shibshabshib");
+		var test = new RegExp(testCommands).exec(testString);
+		if (test !=null)
+		{
+			var nonMregals = test[0].replaceAll("shibshabshib","$");
+			if (nonMregals != null)			
+			{
+				globalUser = userId;
+				var index = commands.indexOf(nonMregals);
+				if (commandsWhitelist.indexOf(commands[index]) !=-1)
+				{
+					if (whitelist.indexOf(userId) !=-1)
+					{
+						functions[index](txt,chan);
+					}
+					else
+					{
+						sendMessage("You don't have the permission for that command",chan);
+					}
+				}
+				else
+				{
+					functions[index](txt,chan);				
+				}
+				chatReady = 0;
+			}	
+		}
+		msgQ.shift();
+		chanQ.shift();
+		userQ.shift();
+	}
+	
+	nextCheck = 0;	
+}
+
+
+
+
 addChange("Since last version");
 addChange("- Added Multi Server Support (Websockets)");
 addChange("- Less spammy to the API!");
 addChange("- Whitelists! and Quotes!");
+addChange("- Bot won't die from Rate Limits anymore!");
+addChange("- Added Message Queue so it won't miss any messages (Hopefully)");
 
 //Place the command adding below here 
 addCommand("$stackoverflow",stack);
@@ -405,17 +494,17 @@ addQuote("```Bleachy: Eyy my new pop filter arrived\nNow i can poop on @Dr. Nu e
 whitelistUser("147284801647411200");
 whitelistCommand("$endMregal");
 
-function sayQuote(txt)
+function sayQuote(txt,chan)
 {
 	var q = txt.replace("$quote ","");
 	var g = parseInt(q);
-	sendMessage(quotes[g]);
+	sendMessage(quotes[g],chan);
 }
 
-function sayIdea()
+function sayIdea(nothing,chan)
 {
 	var rand = Math.floor(Math.random() * (ideas.length - 0 + 0)) + 0;
-	sendMessage(ideas[rand]);
+	sendMessage(ideas[rand],chan);
 }
 
 function flipString(aString) 

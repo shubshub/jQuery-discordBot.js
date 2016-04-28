@@ -5,7 +5,7 @@ function addDiceRecord(txt)
 	diceRecords[diceRecords.length] = txt;
 }
 
-function showDiceRecords()
+function showDiceRecords(nothing,chan)
 {
 	var txt = "```BattleDice Records!\n";
 	for (var i = 0; i < diceRecords.length; i++)
@@ -13,16 +13,16 @@ function showDiceRecords()
 		txt = txt + (i+1) + ". " + diceRecords[i] + "\n";
 	}
 	txt = txt + "```";
-	sendMessage(txt);
+	sendMessage(txt,chan);
 }
 
 addDiceRecord("Shubshub - 6 Wins in a Row: 9:56 PM (GMT+12) 25/04/2016");
 addDiceRecord("Krons - 4 Wins in a Row: 12:46 PM (GMT+12) 26/04/2016");
 
 
-function rulesDice()
+function rulesDice(nothing,chan)
 {
-	sendMessage("```The rules of Battle Dice are Simple\nBoth players roll up to 6 10 Sided Die\nHowever a number of different battle styles may be used which may give an advantage\nThey will be balanced so that none are overpowered\n\n\nPick a Battle Style for the Dice Roll\n\nBattle Style 1: One of the Rolled Die is Guarenteed to be a 10\nBattle Style 2: 3 of the Die Rolled will be Rolled with the Same Value\nBattle Style 3: Roll 1 60 Sided Die\nBattle Style 4: Both Players Exchange their Strongest Rolled Number\n(If the Opponent uses Battle Style 3 then Players Exchange all their Die with each other)\nBattle Style 5: The rolled dice can not be lower than 3\n\nCommands:\n$bd rules - Displays these rules\n$bd play [number] - Play the game with the chosen battle style\n$bd records - Display the High Score records of this game```")
+	sendMessage("```The rules of Battle Dice are Simple\nBoth players roll up to 6 10 Sided Die\nHowever a number of different battle styles may be used which may give an advantage\nThey will be balanced so that none are overpowered\n\n\nPick a Battle Style for the Dice Roll\n\nBattle Style 1: One of the Rolled Die is Guarenteed to be a 10\nBattle Style 2: 3 of the Die Rolled will be Rolled with the Same Value\nBattle Style 3: Roll 1 60 Sided Die\nBattle Style 4: Both Players Exchange their Strongest Rolled Number\n(If the Opponent uses Battle Style 3 then Players Exchange all their Die with each other)\nBattle Style 5: The rolled dice can not be lower than 3\n\nCommands:\n$bd rules - Displays these rules\n$bd play [number] - Play the game with the chosen battle style\n$bd records - Display the High Score records of this game```",chan)
 }
 
 /*
@@ -38,7 +38,7 @@ Style 1 Against Style 2, If Style 2 rolls low for one of the dice then they may 
 Style 4 against Style 3, Style 3 Might be left with low Dice Rolls compared to what they could of had
 */
 
-function playDice(txt)
+function playDice(txt,chan)
 {
 	var playerString = "";
 	var aiString = "";
@@ -192,7 +192,7 @@ function playDice(txt)
 	{
 		winner = "Nobody!"
 	}
-	sendMessage("Player Rolled: "+playerString + "\nWith a grand total of "+playerTotal+" points with Battle Style "+playerTac+"\n\nAnd I rolled "+aiString+"\nWith a grand total of "+aiTotal+" points with Battle Style "+aiTac+"\nSo the winner is...  "+winner);
+	sendMessage("Player Rolled: "+playerString + "\nWith a grand total of "+playerTotal+" points with Battle Style "+playerTac+"\n\nAnd I rolled "+aiString+"\nWith a grand total of "+aiTotal+" points with Battle Style "+aiTac+"\nSo the winner is...  "+winner,chan);
 }
 function diceTactic1()
 {

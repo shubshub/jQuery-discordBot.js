@@ -58,7 +58,7 @@ for (var i = 0; i < shuffleTime; i++)
 {
 	shuffle();
 }
-function bMregalReset()
+function bMregalReset(nothing,chan)
 {
 	for (var i = 0; i < 104; i++)
 	{
@@ -93,7 +93,7 @@ function bMregalReset()
 	{
 		shuffle();
 	}
-	sendMessage("BlackMregal Game Reset!");
+	sendMessage("BlackMregal Game Reset!",chan);
 }
 
 function getNext()
@@ -122,9 +122,9 @@ function getNext()
 	return temp;
 }
 
-function rulesBMregal()
+function rulesBMregal(nothing,chan)
 {
-	sendMessage("```The rules of Black Mregal are Simple.\n\nGet as close to the value of 42 as possible without going over\nThe Dealer (Mregal Bot) Will deal cards to you and itself when you tell it to\n\nA Deck of 104 Cards with some of the Cards have been randomly given special effects that when drawn\nThe player that drew the card will have that effect applied\n\nBelow are the Trap Effects\n1. If you draw a card next turn its value is now double (High Risk, High Reward)\n2. If you draw a card next turn its value halved in value (Low Risk, Low Reward)\n3. If this effect is drawn then the deck is reshuffled\n\nCards in the Deck\nValues: 1 -> 10 -> 10(J) -> 10(Q) -> 10(K)\n8 of Each Value\n\nAt the start of the game 24 Cards will be randomly selected and have the Special Effects applied to them```");
+	sendMessage("```The rules of Black Mregal are Simple.\n\nGet as close to the value of 42 as possible without going over\nThe Dealer (Mregal Bot) Will deal cards to you and itself when you tell it to\n\nA Deck of 104 Cards with some of the Cards have been randomly given special effects that when drawn\nThe player that drew the card will have that effect applied\n\nBelow are the Trap Effects\n1. If you draw a card next turn its value is now double (High Risk, High Reward)\n2. If you draw a card next turn its value halved in value (Low Risk, Low Reward)\n3. If this effect is drawn then the deck is reshuffled\n\nCards in the Deck\nValues: 1 -> 10 -> 10(J) -> 10(Q) -> 10(K)\n8 of Each Value\n\nAt the start of the game 24 Cards will be randomly selected and have the Special Effects applied to them```",chan);
 }
 
 /*
@@ -142,34 +142,34 @@ The more higher value cards that are remaining decrease the likelyhood of the AI
 3: The deck is reshuffled
 */
 
-function bjkHit()
+function bjkHit(nothing,chan)
 {
 	//Player Decides Hit
 	var temp = getNext();
 	if (effectDrawn !=0)
 	{
-		sendMessage("You drew an effect!");
+		sendMessage("You drew an effect!",chan);
 		if (effectDrawn == 1)
 		{
-			sendMessage("If you draw a card on the next turn its value will be doubled!");
+			sendMessage("If you draw a card on the next turn its value will be doubled!",chan);
 		}
 		else if (effectDrawn == 2)
 		{
-			sendMessage("If you draw a card on the next turn its value will be halved!");
+			sendMessage("If you draw a card on the next turn its value will be halved!",chan);
 		}
 		else if (effectDrawn == 3)
 		{
-			sendMessage("You drew a shuffle card! The deck will now be reshuffled!!");
+			sendMessage("You drew a shuffle card! The deck will now be reshuffled!!",chan);
 			shuffle();
 		}
 	}
 	playerScoreBJK+=temp;
 	if (playerScoreBJK > 42)
 	{
-		sendMessage("You went over the limit of 42! And have been thrown into the pit of tortue for all eternity, Mregal Bot is the winner!");
+		sendMessage("You went over the limit of 42! And have been thrown into the pit of tortue for all eternity, Mregal Bot is the winner!",chan);
 	}
 	else
 	{
-		sendMessage("Your total score is currently "+playerScoreBJK);
+		sendMessage("Your total score is currently "+playerScoreBJK,chan);
 	}
 }
